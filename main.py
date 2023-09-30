@@ -1,47 +1,19 @@
-from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel
-from typing import Type, Callable, Union
+from fastapi import FastAPI
 import models
-from database import engine, SessionLocal
-from sqlalchemy.orm import Session
+from database import engine
+from api.sales.sales_status import router as sales_status_router
+from api.revenue.analyze_revenue import router as analyze_revenue_router
+from api.products.register_product import router as register_product_router
+from api.inventory.inventory_status import router as analyze_inventory_router
+from seeder import router as seeder_router
 
 app = FastAPI(debug=True)
 models.Base.metadata.create_all(bind=engine)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+#Routes
+app.include_router(seeder_router, prefix="/seeder", tags=["seeder"])
+app.include_router(sales_status_router, prefix="/sales", tags=["sales"])
+app.include_router(analyze_revenue_router, prefix="/revenue", tags=["revenue"])
+app.include_router(register_product_router, prefix="/products", tags=["products"])
+app.include_router(analyze_inventory_router, prefix="/inventory", tags=["inventory"])
 
-DbDependency: Type[Union[Session, Callable]] = Depends(get_db)
-
-db_dependency: DbDependency = Depends(get_db)
-
-@app.get("/")
-def read_root():
-    return {"message": "Success!"}
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    return JSONResponse(content={"detail": exc.detail}, status_code=exc.status_code)
-
-
-@app.post("/seed-data")
-async def seed_data_endpoint(db: Session = Depends(get_db)):
-    import seed_data
-
-    num_categories = 5
-    num_products = 200
-    num_sales = 1000
-    num_inventory_entries = 400
-
-    seed_data.seed_categories(db, num_categories)
-    seed_data.seed_products(db, num_products)
-    seed_data.seed_sales(db, num_sales)
-    seed_data.seed_inventory(db, num_inventory_entries)
-
-    return {"message": "Data seeding completed."}
