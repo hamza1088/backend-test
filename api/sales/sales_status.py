@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from sqlalchemy.orm import joinedload
 from models import Product, Sale
 from datetime import date
 from database import SessionLocal
 from api.sales.responses.sales_response import SaleResponse
+from api.jwt.jwt_authentication import verify_token
 
 
 router = APIRouter()
@@ -14,8 +15,12 @@ async def get_sales(
     end_date: date = Query(..., description="End date of the date range"),
     product_id: int = Query(None, description="Product ID"),
     category_id: int = Query(None, description="Category ID"),
+    token: str = Query(description="Token"),
 ):
     db = SessionLocal()
+    user = verify_token(token)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Token invalid")
     try:
         query = db.query(Sale)
 

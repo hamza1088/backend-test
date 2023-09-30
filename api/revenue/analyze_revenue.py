@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from sqlalchemy import func
 from models import Sale
 from datetime import date
 from database import SessionLocal
+from api.jwt.jwt_authentication import verify_token
 
 
 router = APIRouter()
@@ -10,9 +11,13 @@ router = APIRouter()
 
 @router.get("/revenue/daily")
 async def daily_revenue(
-    date: date = Query(..., description="Date for revenue analysis")
+    date: date = Query(..., description="Date for revenue analysis"),
+    token: str = Query(description="Token"),
 ):
     db = SessionLocal()
+    user = verify_token(token)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Token invalid")
     try:
         daily_revenue = db.query(func.date(Sale.sale_date).label("date"), func.sum(Sale.revenue).label("total_revenue")). \
             filter(func.date(Sale.sale_date) == date).group_by(func.date(Sale.sale_date)).all()
@@ -27,9 +32,13 @@ async def daily_revenue(
 @router.get("/revenue/weekly")
 async def weekly_revenue(
     start_date: date = Query(..., description="Start date of the week"),
-    end_date: date = Query(..., description="End date of the week")
+    end_date: date = Query(..., description="End date of the week"),
+    token: str = Query(description="Token"),
 ):
     db = SessionLocal()
+    user = verify_token(token)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Token invalid")
     try:
         weekly_revenue = db.query(func.week(Sale.sale_date).label("week"), func.sum(Sale.revenue).label("total_revenue")). \
             filter(Sale.sale_date >= start_date, Sale.sale_date <= end_date).group_by(func.week(Sale.sale_date)).all()
@@ -45,8 +54,12 @@ async def weekly_revenue(
 async def monthly_revenue(
     start_date: date = Query(..., description="Start date of the month"),
     end_date: date = Query(..., description="End date of the month"),
+    token: str = Query(description="Token"),
 ):
     db = SessionLocal()
+    user = verify_token(token)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Token invalid")
     try:
         monthly_revenue = db.query(func.year(Sale.sale_date).label("year"), func.month(Sale.sale_date).label("month"), func.sum(Sale.revenue).label("total_revenue")). \
             filter(Sale.sale_date >= start_date, Sale.sale_date <= end_date).group_by(func.year(Sale.sale_date), func.month(Sale.sale_date)).all()
@@ -63,8 +76,13 @@ async def monthly_revenue(
 async def annual_revenue(
     start_date: date = Query(..., description="Start date of the year"),
     end_date: date = Query(..., description="End date of the year"),
+    token: str = Query(description="Token"),
+
 ):
     db = SessionLocal()
+    user = verify_token(token)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Token invalid")
     try:
         annual_revenue = db.query(func.year(Sale.sale_date).label("year"), func.sum(Sale.revenue).label("total_revenue")). \
             filter(Sale.sale_date >= start_date, Sale.sale_date <= end_date).group_by(func.year(Sale.sale_date)).all()

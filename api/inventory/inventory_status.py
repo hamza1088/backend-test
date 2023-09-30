@@ -1,14 +1,19 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query, HTTPException
 from models import Inventory
 from datetime import datetime
 from pydantic import BaseModel
 from database import SessionLocal
+from api.jwt.jwt_authentication import verify_token
 
 router = APIRouter()
 
 @router.get("/inventory")
-async def view_inventory(low_stock_threshold: int = 10):
+async def view_inventory(low_stock_threshold: int,     token: str = Query(description="Token"),
+):
     db = SessionLocal()
+    user = verify_token(token)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Token invalid")
     try:
         inventory = db.query(Inventory).filter(Inventory.current_stock <= low_stock_threshold).all()
 
