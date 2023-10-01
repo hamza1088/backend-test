@@ -9,6 +9,8 @@ source env/bin/activate
 
 pip install -r requirements.txt
 
+Create ecommerce_api db in myour mysql server (Username : root, password :123 , port:3306)
+
 uvicorn main:app --host 0.0.0.0 --port 8002 --reload --> now open http://0.0.0.0:8002/docs in browser
 
 You will see all APIs.
