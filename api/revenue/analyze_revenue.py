@@ -9,7 +9,7 @@ from api.jwt.jwt_authentication import verify_token
 router = APIRouter()
 
 
-@router.get("/revenue/daily")
+@router.get("/daily")
 async def daily_revenue(
     date: date = Query(..., description="Date for revenue analysis"),
     token: str = Query(description="Token"),
@@ -29,7 +29,7 @@ async def daily_revenue(
         db.close()
 
 
-@router.get("/revenue/weekly")
+@router.get("/weekly")
 async def weekly_revenue(
     start_date: date = Query(..., description="Start date of the week"),
     end_date: date = Query(..., description="End date of the week"),
@@ -50,7 +50,7 @@ async def weekly_revenue(
         db.close()
 
 
-@router.get("/revenue/monyhly")
+@router.get("/monyhly")
 async def monthly_revenue(
     start_date: date = Query(..., description="Start date of the month"),
     end_date: date = Query(..., description="End date of the month"),
@@ -72,7 +72,7 @@ async def monthly_revenue(
 
 
 
-@router.get("/revenue/anually")
+@router.get("/anually")
 async def annual_revenue(
     start_date: date = Query(..., description="Start date of the year"),
     end_date: date = Query(..., description="End date of the year"),

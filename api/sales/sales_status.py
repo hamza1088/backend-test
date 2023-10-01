@@ -9,7 +9,7 @@ from api.jwt.jwt_authentication import verify_token
 
 router = APIRouter()
 
-@router.get("/sales/")
+@router.get("/get")
 async def get_sales(
     start_date: date = Query(..., description="Start date of the date range"),
     end_date: date = Query(..., description="End date of the date range"),

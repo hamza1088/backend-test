@@ -7,7 +7,7 @@ from api.jwt.jwt_authentication import verify_token
 
 router = APIRouter()
 
-@router.get("/inventory")
+@router.get("/")
 async def view_inventory(low_stock_threshold: int,     token: str = Query(description="Token"),
 ):
     db = SessionLocal()
@@ -28,7 +28,7 @@ class InventoryUpdate(BaseModel):
     new_stock_level: int
 
 
-@router.put("/inventory/update")
+@router.put("/update")
 def update_inventory(inventory_update: InventoryUpdate):
     db = SessionLocal()
     try:

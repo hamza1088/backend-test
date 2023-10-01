@@ -11,7 +11,7 @@ class ProductCreate(BaseModel):
     unit_price: float
     description: str
 
-@router.post("/products/register")
+@router.post("/register")
 async def create_product(product: ProductCreate):
     db = SessionLocal()
 
