@@ -1,8 +1,7 @@
 # backend-test
 
 # How to setup locally
- After Clone this repo, run following commands locally to start the project (Linux/Ubunut)
-
+After cloning this repo, run the following commands locally to start the project (Linux/Ubuntu).
 python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt
